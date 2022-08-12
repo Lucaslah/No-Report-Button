@@ -5,5 +5,5 @@ Supports fabric 1.19.1+, forge support is coming soon!\
 The fabric api is not required.
 
 ## Links
-Curseforge: https://www.curseforge.com/minecraft/mc-mods/no-report-button
+Curseforge: https://www.curseforge.com/minecraft/mc-mods/no-report-button\
 Modrinth: https://modrinth.com/mod/nrb
