@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "noreportbutton",
+  "version": "${version}",
+
+  "name": "No Report Button",
+  "description": "Removes the chat report button from the multiplayer menu screen",
+  "authors": [
+    "Lucaslah"
+  ],
+  "contact": {
+    "homepage": "https://cssudii.xyz/r/project/no-report-button",
+    "sources": "https://github.com/Lucalah/no-report-button"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/noreportbutton/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "me.lucaslah.ncrb.NoReportButton"
+    ]
+  },
+  "mixins": [
+    "mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.14.6",
+    "fabric": "*",
+    "minecraft": "~1.19",
+    "java": ">=17"
+  }
+}
