@@ -13,7 +13,7 @@
     "sources": "https://github.com/Lucalah/no-report-button"
   },
 
-  "license": "CC0-1.0",
+  "license": "lgpl-3",
   "icon": "assets/noreportbutton/icon.png",
 
   "environment": "*",
@@ -28,7 +28,6 @@
 
   "depends": {
     "fabricloader": ">=0.14.6",
-    "fabric": "*",
     "minecraft": "~1.19",
     "java": ">=17"
   }
