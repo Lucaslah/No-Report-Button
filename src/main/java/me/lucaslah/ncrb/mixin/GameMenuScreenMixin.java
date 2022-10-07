@@ -33,16 +33,13 @@ public abstract class GameMenuScreenMixin extends Screen {
 		for (ClickableWidget button : buttons) {
 			if (button.getMessage().getString().equals(I18n.translate("menu.playerReporting"))) {
 				button.setWidth(-9999);
+				button.active = false;
 				reportButton = button;
 				reportButtonFound = true;
 			}
 		}
 
 		if (reportButtonFound) {
-			//reportButton.setWidth(-9999);
-			//reportButton.setMessage(Text.of(""));
-			//reportButton.active = false;
-
 			ButtonWidget openToLanButton = this.addDrawableChild(new ButtonWidget(this.width / 2 + 4, this.height / 4 + 96 + -16, 98, 20, Text.translatable("menu.shareToLan"), (button) -> {
 				assert this.client != null;
 				this.client.setScreen(new OpenToLanScreen(this));
