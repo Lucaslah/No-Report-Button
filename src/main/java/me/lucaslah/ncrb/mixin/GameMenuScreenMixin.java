@@ -1,11 +1,12 @@
 package me.lucaslah.ncrb.mixin;
 
+import me.lucaslah.ncrb.OpenToLanButton;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
+import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.GameMenuScreen;
-import net.minecraft.client.gui.screen.OpenToLanScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.GridWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,28 +26,41 @@ public abstract class GameMenuScreenMixin extends Screen {
 
 	@Inject(method = "initWidgets()V", at = @At(value = "RETURN"))
 	public void initWidgets(CallbackInfo ci) {
-		final List<ClickableWidget> buttons = Screens.getButtons(this);
+		final List<ClickableWidget> widgets = Screens.getButtons(this);
+		List<? extends Element> buttons = null;
 
-		ClickableWidget reportButton = null;
+		for (ClickableWidget clickableWidget : widgets) {
+			if (clickableWidget instanceof GridWidget widget) {
+				List<? extends Element> children = widget.children();
+
+				if (children != null) {
+					buttons = children;
+				}
+			}
+		}
+
 		boolean reportButtonFound = false;
 
-		for (ClickableWidget button : buttons) {
-			if (button.getMessage().getString().equals(I18n.translate("menu.playerReporting"))) {
-				button.setWidth(-9999);
-				button.active = false;
-				reportButton = button;
-				reportButtonFound = true;
+		if (buttons != null) {
+			for (Element element : buttons) {
+				if (element instanceof ClickableWidget button) {
+					if (button.getMessage().getString().equals(I18n.translate("menu.playerReporting"))) {
+						button.visible = false;
+						button.active = false;
+						reportButtonFound = true;
+					}
+				}
 			}
 		}
 
 		if (reportButtonFound) {
-			ButtonWidget openToLanButton = this.addDrawableChild(new ButtonWidget(this.width / 2 + 4, this.height / 4 + 96 + -16, 98, 20, Text.translatable("menu.shareToLan"), (button) -> {
-				assert this.client != null;
-				this.client.setScreen(new OpenToLanScreen(this));
-			}));
+			OpenToLanButton openToLanButton = new OpenToLanButton(this,this.width / 2 + 4, this.height / 4 + 96 + -16, 98, 20, Text.translatable("menu.shareToLan"));
 
-			assert this.client != null;
-			openToLanButton.active = this.client.isIntegratedServerRunning() && !Objects.requireNonNull(this.client.getServer()).isRemote();
+			if (this.client != null) {
+				openToLanButton.active = this.client.isIntegratedServerRunning() && !Objects.requireNonNull(this.client.getServer()).isRemote();
+			}
+
+			widgets.add(openToLanButton);
 		}
 	}
 }
