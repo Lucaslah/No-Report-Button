@@ -9,6 +9,12 @@ The fabric api is not required.
 
 For minecraft versions 1.19.2 or older use NRB v1.2.1, the latest version only supports 1.19.3+.
 
+## Supported Version
+| Version | MC Version    | Branch    |
+|---------|---------------|-----------|
+| 1.2.1   | 1.19.1-1.19.2 | mc-1.19.1 |
+| 1.3.1   | 1.19.3+       | mc-1.19.3 |
+
 ## Links
 Curseforge: https://www.curseforge.com/minecraft/mc-mods/no-report-button<br>
 Modrinth: https://modrinth.com/mod/nrb
