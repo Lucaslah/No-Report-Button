@@ -19,11 +19,11 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "me.lucaslah.ncrb.NoReportButton"
+      "me.lucaslah.nrb.NoReportButton"
     ]
   },
   "mixins": [
-    "mixins.json"
+    "noreportbutton.mixins.json"
   ],
 
   "depends": {

@@ -1,6 +1,5 @@
-package me.lucaslah.ncrb.mixin;
+package me.lucaslah.nrb.mixin;
 
-import me.lucaslah.ncrb.OpenToLanButton;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.GameMenuScreen;
@@ -39,28 +38,18 @@ public abstract class GameMenuScreenMixin extends Screen {
 			}
 		}
 
-		boolean reportButtonFound = false;
-
 		if (buttons != null) {
 			for (Element element : buttons) {
 				if (element instanceof ClickableWidget button) {
 					if (button.getMessage().getString().equals(I18n.translate("menu.playerReporting"))) {
-						button.visible = false;
-						button.active = false;
-						reportButtonFound = true;
+						if (this.client != null) {
+							button.active = this.client.isIntegratedServerRunning() && !Objects.requireNonNull(this.client.getServer()).isRemote();
+						}
+
+						button.setMessage(Text.translatable("menu.shareToLan"));
 					}
 				}
 			}
-		}
-
-		if (reportButtonFound) {
-			OpenToLanButton openToLanButton = new OpenToLanButton(this,this.width / 2 + 4, this.height / 4 + 96 + -16, 98, 20, Text.translatable("menu.shareToLan"));
-
-			if (this.client != null) {
-				openToLanButton.active = this.client.isIntegratedServerRunning() && !Objects.requireNonNull(this.client.getServer()).isRemote();
-			}
-
-			widgets.add(openToLanButton);
 		}
 	}
 }
