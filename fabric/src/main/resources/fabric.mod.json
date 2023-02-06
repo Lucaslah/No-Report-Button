@@ -16,10 +16,10 @@
   "license": "lgpl-3",
   "icon": "assets/noreportbutton/icon.png",
 
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
     "main": [
-      "me.lucaslah.nrb.NoReportButton"
+      "me.lucaslah.nrb.NoReportButtonFabric"
     ]
   },
   "mixins": [
@@ -29,7 +29,6 @@
   "depends": {
     "fabricloader": ">=0.14.6",
     "minecraft": ">=1.19.3",
-    "java": ">=17",
-    "fabric-screen-api-v1": ">=1.0.4"
+    "java": ">=17"
   }
 }

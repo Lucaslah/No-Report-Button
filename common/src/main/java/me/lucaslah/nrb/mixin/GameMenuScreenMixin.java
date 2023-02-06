@@ -1,6 +1,5 @@
 package me.lucaslah.nrb.mixin;
 
-import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -18,17 +17,16 @@ import java.util.Objects;
 
 @Mixin(GameMenuScreen.class)
 public abstract class GameMenuScreenMixin extends Screen {
-
 	protected GameMenuScreenMixin(Text title) {
 		super(title);
 	}
 
 	@Inject(method = "initWidgets()V", at = @At(value = "RETURN"))
 	public void initWidgets(CallbackInfo ci) {
-		final List<ClickableWidget> widgets = Screens.getButtons(this);
+		final List<Element> widgets = ((ScreenAccessor) this).getChildren();
 		List<? extends Element> buttons = null;
 
-		for (ClickableWidget clickableWidget : widgets) {
+		for (Element clickableWidget : widgets) {
 			if (clickableWidget instanceof GridWidget widget) {
 				List<? extends Element> children = widget.children();
 

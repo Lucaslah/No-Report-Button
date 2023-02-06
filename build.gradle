@@ -1,56 +1,41 @@
 plugins {
-	id 'fabric-loom' version '0.12-SNAPSHOT'
-	id 'maven-publish'
+	id "architectury-plugin" version "3.4-SNAPSHOT"
+	id "dev.architectury.loom" version "1.0-SNAPSHOT" apply false
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
-
-repositories {}
-
-configurations {
-    includeModImplementation
-    includeImplementation
-
-    include.extendsFrom includeImplementation
-    include.extendsFrom includeModImplementation
-
-    implementation.extendsFrom includeImplementation
-    modImplementation.extendsFrom includeModImplementation
+architectury {
+	injectInjectables = false
+	minecraft = rootProject.properties["minecraft_version"]
 }
 
-dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+subprojects {
+	apply plugin: "dev.architectury.loom"
 
-	includeModImplementation fabricApi.module("fabric-api-base", project.fabric_version)
-	includeModImplementation fabricApi.module("fabric-screen-api-v1", project.fabric_version)
-}
+	loom {
+		silentMojangMappingsLicense()
+	}
 
-processResources {
-	inputs.property "version", project.version
-
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+	dependencies {
+		minecraft "com.mojang:minecraft:${rootProject.properties["minecraft_version"]}"
+		mappings "net.fabricmc:yarn:${rootProject.properties["yarn_mappings"]}:v2"
 	}
 }
 
-tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
-}
+allprojects {
+	apply plugin: "java"
+	apply plugin: "architectury-plugin"
+	apply plugin: "maven-publish"
 
-java {
-	withSourcesJar()
-}
+	archivesBaseName = rootProject.properties["archives_base_name"]
+	version = rootProject.properties["mod_version"]
+	group = rootProject.properties["maven_group"]
 
-jar {
-	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
+	tasks.withType(JavaCompile).configureEach {
+		options.encoding = "UTF-8"
+		options.release.set(17)
+	}
+
+	java {
+		withSourcesJar()
 	}
 }

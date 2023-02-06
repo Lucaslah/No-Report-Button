@@ -1,0 +1,8 @@
+architectury {
+    injectInjectables = false
+    common(rootProject.properties["enabled_platforms"].split(","))
+}
+
+dependencies {
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.property("fabric_loader_version")}"
+}
