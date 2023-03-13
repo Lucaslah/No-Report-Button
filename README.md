@@ -1,5 +1,5 @@
 [![curseforge-downloads](https://cf.way2muchnoise.eu/full_658722_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/no-report-button)
-[![modrinth-downloads](https://modrinth-utils.vercel.app/api/badge/downloads?id=9WJeSpTH&logo=true)](https://modrinth.com/mod/nrb)
+[![modrinth-downloads](https://img.shields.io/modrinth/dt/9WJeSpTH?logo=Modrinth)](https://modrinth.com/mod/nrb)
 # No Report Button
 Removes the chat report button from the game menu screen
 
