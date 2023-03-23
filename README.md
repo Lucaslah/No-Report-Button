@@ -9,11 +9,14 @@ Should be compatible with any mods, but if you do find a mod that is not please 
 **Fabric API not required.**\
 **Mod is client size only, this mod will not do anything if used on the server.**
 
-For Minecraft versions 1.19.1 and 1.19.2 use NRB v1.2.1, the latest version only supports 1.19.3+.
+For Minecraft versions 1.19.1 and 1.19.2 use NRB v1.2.1.\
+For Minecraft 1.19.3 use NRB v1.4.0.\
+The latest version (v1.4.1) only supports 1.19.4+.
 
 ## Released Versions
 | Version | MC Version    | Mod loaders          | Git tag                                                                   | Supported |
 |---------|---------------|----------------------|---------------------------------------------------------------------------|-----------|
+| 1.4.1   | 1.19.4        | fabric, forge, quilt | [1.4.1](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.4.1) | yes       |
 | 1.4.0   | 1.19.3        | fabric, forge, quilt | [1.4.0](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.4.0) | yes       |
 | 1.3.1   | 1.19.3        | fabric               | [1.3.1](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.3.1) | no        |
 | 1.3.0   | 1.19.3        | fabric               | [1.3.0](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.3.0) | no        |

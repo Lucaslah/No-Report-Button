@@ -1,10 +1,11 @@
 package me.lucaslah.nrb.mixin;
 
-import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.GridWidget;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,29 +24,16 @@ public abstract class GameMenuScreenMixin extends Screen {
 
 	@Inject(method = "initWidgets()V", at = @At(value = "RETURN"))
 	public void initWidgets(CallbackInfo ci) {
-		final List<Element> widgets = ((ScreenAccessor) this).getChildren();
-		List<? extends Element> buttons = null;
+		final List<Drawable> drawables = ((ScreenAccessor) this).getDrawables();
 
-		for (Element clickableWidget : widgets) {
-			if (clickableWidget instanceof GridWidget widget) {
-				List<? extends Element> children = widget.children();
-
-				if (children != null) {
-					buttons = children;
-				}
-			}
-		}
-
-		if (buttons != null) {
-			for (Element element : buttons) {
-				if (element instanceof ClickableWidget button) {
-					if (button.getMessage().getString().equals(I18n.translate("menu.playerReporting"))) {
-						if (this.client != null) {
-							button.active = this.client.isIntegratedServerRunning() && !Objects.requireNonNull(this.client.getServer()).isRemote();
-						}
-
-						button.setMessage(Text.translatable("menu.shareToLan"));
+		for (Drawable drawable : drawables) {
+			if (drawable instanceof ClickableWidget widget) {
+				if (widget.getMessage().getString().equals(I18n.translate("menu.playerReporting"))) {
+					if (this.client != null) {
+						widget.active = this.client.isIntegratedServerRunning() && !Objects.requireNonNull(this.client.getServer()).isRemote();
 					}
+
+					widget.setMessage(Text.translatable("menu.shareToLan"));
 				}
 			}
 		}
