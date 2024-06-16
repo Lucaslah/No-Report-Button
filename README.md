@@ -17,12 +17,12 @@ The latest version (v1.4.1) only supports 1.19.4+.
 ## Released Versions
 | Version | MC Version    | Mod loaders          | Git tag                                                                   | Supported |
 |---------|---------------|----------------------|---------------------------------------------------------------------------|-----------|
-| 1.5.0   | 1.20.1-1.20.4 | fabric, forge, quilt | [1.5.0](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.5.0) | yes       |
-| 1.4.1   | 1.19.4        | fabric, forge, quilt | [1.4.1](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.4.1) | yes       |
-| 1.4.0   | 1.19.3        | fabric, forge, quilt | [1.4.0](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.4.0) | yes       |
+| 1.5.0   | 1.20.1-1.20.6 | fabric, forge, quilt | [1.5.0](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.5.0) | yes       |
+| 1.4.1   | 1.19.4        | fabric, forge, quilt | [1.4.1](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.4.1) | no        |
+| 1.4.0   | 1.19.3        | fabric, forge, quilt | [1.4.0](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.4.0) | no        |
 | 1.3.1   | 1.19.3        | fabric               | [1.3.1](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.3.1) | no        |
 | 1.3.0   | 1.19.3        | fabric               | [1.3.0](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.3.0) | no        |
-| 1.2.1   | 1.19.1-1.19.2 | fabric               | [1.2.1](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.2.1) | yes       |
+| 1.2.1   | 1.19.1-1.19.2 | fabric               | [1.2.1](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.2.1) | no        |
 | 1.2.0   | 1.19.1-1.19.2 | fabric               | [1.2.0](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.2.0) | no        |
 | 1.1.0   | 1.19.1-1.19.2 | fabric               | [1.1.0](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.1.0) | no        |
 
