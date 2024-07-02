@@ -9,7 +9,7 @@
     "Lucaslah"
   ],
   "contact": {
-    "homepage": "https://cssudii.xyz/r/project/no-report-button",
+    "homepage": "https://github.com/Lucalah/no-report-button",
     "sources": "https://github.com/Lucalah/no-report-button"
   },
 
@@ -28,7 +28,7 @@
 
   "depends": {
     "fabricloader": ">=0.14.17",
-    "minecraft": "~1.20.1",
-    "java": ">=17"
+    "minecraft": "~1.21",
+    "java": ">=21"
   }
 }

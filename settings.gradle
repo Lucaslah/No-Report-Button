@@ -12,9 +12,8 @@ pluginManagement {
     }
 }
 
-rootProject.name = "no-report-button"
+rootProject.name = "No-Report-Button"
 
 include 'common'
 include 'fabric'
 include 'forge'
-
