@@ -15,7 +15,7 @@ See below for what NRB version to use.
 ## Released Versions
 | Version    | MC Version    | Mod loaders          | Git tag                                                                             | Supported |
 |------------|---------------|----------------------|-------------------------------------------------------------------------------------|-----------|
-| 1.6.0      | 1.21          | fabric, forge, quilt | [1.6.0-beta](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.6.0)      | yes       |
+| 1.6.0      | 1.21          | fabric, forge, quilt | [1.6.0](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.6.0)           | yes       |
 | 1.6.0-beta | 1.21          | fabric               | [1.6.0-beta](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.6.0-beta) | no        |
 | 1.5.0      | 1.20.1-1.20.6 | fabric, forge, quilt | [1.5.0](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.5.0)           | yes       |
 | 1.4.1      | 1.19.4        | fabric, forge, quilt | [1.4.1](https://github.com/Lucaslah/No-Report-Button/releases/tag/v1.4.1)           | no        |
