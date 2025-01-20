@@ -1,9 +1,8 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id 'com.github.johnrengelman.shadow'
 }
 
 architectury {
-    injectInjectables = false
     platformSetupLoomIde()
     forge()
 }
@@ -15,19 +14,27 @@ loom {
 }
 
 configurations {
-    common
-    shadowCommon
+    common {
+        canBeResolved = true
+        canBeConsumed = false
+    }
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
-    archivesBaseName = rootProject.archives_base_name + "-forge"
+
+    // Files in this configuration will be bundled into your mod using the Shadow plugin.
+    // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
+    shadowBundle {
+        canBeResolved = true
+        canBeConsumed = false
+    }
 }
 
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.properties["forge_version"]}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+    shadowBundle(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 }
 
 processResources {
@@ -39,31 +46,10 @@ processResources {
 }
 
 shadowJar {
-    exclude "fabric.mod.json"
-    exclude "architectury.common.json"
-
-    configurations = [project.configurations.shadowCommon]
-    setArchiveClassifier("dev-shadow")
+    configurations = [project.configurations.shadowBundle]
+    archiveClassifier = 'dev-shadow'
 }
 
 remapJar {
-    input.set shadowJar.archiveFile
-    dependsOn shadowJar
-    setArchiveClassifier(null)
-}
-
-jar {
-    setArchiveClassifier("dev")
-}
-
-sourcesJar {
-    def commonSources = project(":common").sourcesJar
-    dependsOn commonSources
-    from commonSources.archiveFile.map { zipTree(it) }
-}
-
-components.java {
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
-    }
+    inputFile.set shadowJar.archiveFile
 }
