@@ -7,7 +7,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
 
@@ -46,23 +46,3 @@ jobs:
         with:
           name: 'NRB-Build-${{ steps.commit_short_sha.outputs.sha_short }}'
           path: 'artifacts/'
-
-
-  dependency-submission:
-
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      # Generates and submits a dependency graph, enabling Dependabot Alerts for all project dependencies.
-      # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
-      - name: Generate and submit dependency graph
-        uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
