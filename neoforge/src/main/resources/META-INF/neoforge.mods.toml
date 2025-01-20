@@ -1,0 +1,31 @@
+modLoader = "javafml"
+loaderVersion = "[0,)"
+license = "GNU LESSER GENERAL PUBLIC LICENSE"
+clientSideOnly=true
+
+[[mods]]
+modId = "noreportbutton"
+version = "${version}"
+displayName = "No Report Button"
+authors = "Lucaslah"
+description = '''
+Removes the chat report button from the multiplayer menu screen
+'''
+logoFile = "icon.png"
+
+[[dependencies.noreportbutton]]
+modId = "neoforge"
+mandatory = true
+versionRange = "[0,)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.noreportbutton]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.21,)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[mixins]]
+config = "noreportbutton.mixins.json"
