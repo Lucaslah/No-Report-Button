@@ -44,7 +44,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: 'NRB-Build-${{ steps.vars.outputs.sha_short }}'
+          name: 'NRB-Build-${{ steps.commit_short_sha.outputs.sha_short }}'
           path: 'artifacts/'
 
 
