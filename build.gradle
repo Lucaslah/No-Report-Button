@@ -1,6 +1,95 @@
 plugins {
 	id 'base'
+	id 'me.modmuss50.mod-publish-plugin' version '1.1.0'
 }
+
+def releaseTypeForVersion = { String version ->
+	def normalized = version.toLowerCase(Locale.ROOT)
+	if (normalized.contains('alpha')) {
+		return publishMods.ALPHA
+	}
+	if (normalized.contains('beta') || normalized.contains('rc')) {
+		return publishMods.BETA
+	}
+	return publishMods.STABLE
+}
+
+def gitOutput = { List<String> command, boolean ignoreExitValue = false ->
+	def process = new ProcessBuilder()
+		.command(command.collect { it.toString() })
+		.directory(rootProject.projectDir)
+		.start()
+	def stdout = process.inputStream.getText('UTF-8')
+	def stderr = process.errorStream.getText('UTF-8')
+	def exitCode = process.waitFor()
+
+	if (!ignoreExitValue && exitCode != 0) {
+		throw new GradleException("Command failed: ${command.join(' ')}\n${stderr.trim()}")
+	}
+
+	stdout.trim()
+}
+
+def gitDefaultBranchProvider = providers.provider {
+	def remoteHead = gitOutput(['git', 'symbolic-ref', 'refs/remotes/origin/HEAD'], true)
+	if (!remoteHead) {
+		return 'main'
+	}
+
+	remoteHead.tokenize('/').last()
+}
+
+def gitReleaseCommitishProvider = providers.provider {
+	def head = gitOutput(['git', 'rev-parse', 'HEAD'], true)
+	if (head) {
+		return head
+	}
+
+	gitDefaultBranchProvider.get()
+}
+
+def releaseTagProvider = providers.gradleProperty('releaseTag').orElse(
+	providers.provider { "v${project.version}" }
+)
+
+def releaseNameProvider = providers.provider {
+	"${rootProject.mod_name} ${project.version} for Minecraft ${rootProject.minecraft_version}"
+}
+
+def loaderReleaseNameProvider = { String loaderName ->
+	providers.provider {
+		"${releaseNameProvider.get()} (${loaderName})"
+	}
+}
+
+def previousTagProvider = providers.provider {
+	def releaseTag = releaseTagProvider.get()
+	def tags = gitOutput(['git', 'tag', '--sort=-creatordate'], true).readLines().findAll { !it.isBlank() }
+	tags.find { it != releaseTag } ?: ''
+}
+
+def generatedChangelogProvider = providers.provider {
+	def previousTag = previousTagProvider.get()
+	def changelogLines = ["# ${releaseNameProvider.get()}", '']
+
+	if (previousTag) {
+		changelogLines << "Changes since ${previousTag}:"
+		changelogLines << ''
+
+		def log = gitOutput(['git', 'log', '--no-merges', '--pretty=- %s (%h)', "${previousTag}..HEAD"], true)
+		changelogLines << (log ?: '- Maintenance release.')
+	} else {
+		changelogLines << 'Initial automated release.'
+	}
+
+	changelogLines.join('\n')
+}
+
+def releaseChangelogProvider = providers.gradleProperty('releaseChangelog').orElse(generatedChangelogProvider)
+def releaseDryRunProvider = providers.gradleProperty('releaseDryRun').map { it.toBoolean() }.orElse(false)
+def curseforgeTokenProvider = providers.gradleProperty('CURSEFORGE_TOKEN').orElse(providers.environmentVariable('CURSEFORGE_TOKEN'))
+def modrinthTokenProvider = providers.gradleProperty('MODRINTH_TOKEN').orElse(providers.environmentVariable('MODRINTH_TOKEN'))
+def githubTokenProvider = providers.gradleProperty('GITHUB_TOKEN').orElse(providers.environmentVariable('GITHUB_TOKEN'))
 
 allprojects {
 	group = rootProject.maven_group
@@ -32,4 +121,86 @@ subprojects {
 
 tasks.named('build') {
 	dependsOn ':fabric:build', ':forge:build', ':neoforge:build'
+}
+
+publishMods {
+	changelog = releaseChangelogProvider
+	type = releaseTypeForVersion(project.version.toString())
+	dryRun = releaseDryRunProvider
+
+	def curseforgeOptions = curseforgeOptions {
+		accessToken = curseforgeTokenProvider
+		projectId = '658722'
+		projectSlug = 'no-report-button'
+		minecraftVersions.add(rootProject.minecraft_version.toString())
+		javaVersions.add(org.gradle.api.JavaVersion.toVersion(rootProject.java_version))
+		clientRequired = true
+		serverRequired = false
+	}
+
+	def modrinthOptions = modrinthOptions {
+		accessToken = modrinthTokenProvider
+		projectId = '9WJeSpTH'
+		minecraftVersions.add(rootProject.minecraft_version.toString())
+	}
+
+	curseforge('curseforgeFabric') {
+		from curseforgeOptions
+		file project(':fabric')
+		displayName = loaderReleaseNameProvider('Fabric')
+		modLoaders.add('fabric')
+	}
+
+	curseforge('curseforgeForge') {
+		from curseforgeOptions
+		file project(':forge')
+		displayName = loaderReleaseNameProvider('Forge')
+		modLoaders.add('forge')
+	}
+
+	curseforge('curseforgeNeoforge') {
+		from curseforgeOptions
+		file project(':neoforge')
+		displayName = loaderReleaseNameProvider('NeoForge')
+		modLoaders.add('neoforge')
+	}
+
+	modrinth('modrinthFabric') {
+		from modrinthOptions
+		file project(':fabric')
+		displayName = loaderReleaseNameProvider('Fabric')
+		modLoaders.add('fabric')
+	}
+
+	modrinth('modrinthForge') {
+		from modrinthOptions
+		file project(':forge')
+		displayName = loaderReleaseNameProvider('Forge')
+		modLoaders.add('forge')
+	}
+
+	modrinth('modrinthNeoforge') {
+		from modrinthOptions
+		file project(':neoforge')
+		displayName = loaderReleaseNameProvider('NeoForge')
+		modLoaders.add('neoforge')
+	}
+
+	github {
+		accessToken = githubTokenProvider
+		repository = 'Lucaslah/No-Report-Button'
+		commitish = gitReleaseCommitishProvider
+		tagName = releaseTagProvider
+		displayName = releaseNameProvider
+		allowEmptyFiles = true
+		additionalFile project(':fabric')
+		additionalFile project(':forge')
+		additionalFile project(':neoforge')
+	}
+}
+
+tasks.register('releaseMod') {
+	group = 'publishing'
+	description = 'Publishes separate Fabric, Forge, and NeoForge releases to CurseForge and Modrinth, and uploads all three jars to one GitHub release.'
+	dependsOn tasks.named('publishMods')
 }
