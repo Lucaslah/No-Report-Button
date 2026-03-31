@@ -9,8 +9,8 @@
     "Lucaslah"
   ],
   "contact": {
-    "homepage": "https://github.com/Lucalah/no-report-button",
-    "sources": "https://github.com/Lucalah/no-report-button"
+    "homepage": "https://github.com/Lucaslah/no-report-button",
+    "sources": "https://github.com/Lucaslah/no-report-button"
   },
 
   "license": "lgpl-3",
@@ -27,8 +27,8 @@
   ],
 
   "depends": {
-    "fabricloader": ">=0.14.17",
-    "minecraft": "~1.21",
-    "java": ">=21"
+    "fabricloader": ">=0.18.5",
+    "minecraft": ">=26.1",
+    "java": ">=25"
   }
 }
