@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "me.lucaslah.nrb.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "minVersion": "0.8",
+  "client": [
+    "PauseScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
