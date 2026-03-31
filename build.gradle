@@ -1,12 +1,95 @@
 plugins {
-	id 'dev.architectury.loom' version '1.7-SNAPSHOT' apply false
-	id 'architectury-plugin' version '3.4-SNAPSHOT'
-	id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
+	id 'base'
+	id 'me.modmuss50.mod-publish-plugin' version '1.1.0'
 }
 
-architectury {
-	minecraft = project.minecraft_version
+def releaseTypeForVersion = { String version ->
+	def normalized = version.toLowerCase(Locale.ROOT)
+	if (normalized.contains('alpha')) {
+		return publishMods.ALPHA
+	}
+	if (normalized.contains('beta') || normalized.contains('rc')) {
+		return publishMods.BETA
+	}
+	return publishMods.STABLE
 }
+
+def gitOutput = { List<String> command, boolean ignoreExitValue = false ->
+	def process = new ProcessBuilder()
+		.command(command.collect { it.toString() })
+		.directory(rootProject.projectDir)
+		.start()
+	def stdout = process.inputStream.getText('UTF-8')
+	def stderr = process.errorStream.getText('UTF-8')
+	def exitCode = process.waitFor()
+
+	if (!ignoreExitValue && exitCode != 0) {
+		throw new GradleException("Command failed: ${command.join(' ')}\n${stderr.trim()}")
+	}
+
+	stdout.trim()
+}
+
+def gitDefaultBranchProvider = providers.provider {
+	def remoteHead = gitOutput(['git', 'symbolic-ref', 'refs/remotes/origin/HEAD'], true)
+	if (!remoteHead) {
+		return 'main'
+	}
+
+	remoteHead.tokenize('/').last()
+}
+
+def gitReleaseCommitishProvider = providers.provider {
+	def head = gitOutput(['git', 'rev-parse', 'HEAD'], true)
+	if (head) {
+		return head
+	}
+
+	gitDefaultBranchProvider.get()
+}
+
+def releaseTagProvider = providers.gradleProperty('releaseTag').orElse(
+	providers.provider { "v${project.version}" }
+)
+
+def releaseNameProvider = providers.provider {
+	"${rootProject.mod_name} ${project.version} for Minecraft ${rootProject.minecraft_version}"
+}
+
+def loaderReleaseNameProvider = { String loaderName ->
+	providers.provider {
+		"${releaseNameProvider.get()} (${loaderName})"
+	}
+}
+
+def previousTagProvider = providers.provider {
+	def releaseTag = releaseTagProvider.get()
+	def tags = gitOutput(['git', 'tag', '--sort=-creatordate'], true).readLines().findAll { !it.isBlank() }
+	tags.find { it != releaseTag } ?: ''
+}
+
+def generatedChangelogProvider = providers.provider {
+	def previousTag = previousTagProvider.get()
+	def changelogLines = ["# ${releaseNameProvider.get()}", '']
+
+	if (previousTag) {
+		changelogLines << "Changes since ${previousTag}:"
+		changelogLines << ''
+
+		def log = gitOutput(['git', 'log', '--no-merges', '--pretty=- %s (%h)', "${previousTag}..HEAD"], true)
+		changelogLines << (log ?: '- Maintenance release.')
+	} else {
+		changelogLines << 'Initial automated release.'
+	}
+
+	changelogLines.join('\n')
+}
+
+def releaseChangelogProvider = providers.gradleProperty('releaseChangelog').orElse(generatedChangelogProvider)
+def releaseDryRunProvider = providers.gradleProperty('releaseDryRun').map { it.toBoolean() }.orElse(false)
+def curseforgeTokenProvider = providers.gradleProperty('CURSEFORGE_TOKEN').orElse(providers.environmentVariable('CURSEFORGE_TOKEN'))
+def modrinthTokenProvider = providers.gradleProperty('MODRINTH_TOKEN').orElse(providers.environmentVariable('MODRINTH_TOKEN'))
+def githubTokenProvider = providers.gradleProperty('GITHUB_TOKEN').orElse(providers.environmentVariable('GITHUB_TOKEN'))
 
 allprojects {
 	group = rootProject.maven_group
@@ -14,59 +97,110 @@ allprojects {
 }
 
 subprojects {
-	apply plugin: 'dev.architectury.loom'
-	apply plugin: 'architectury-plugin'
-	apply plugin: 'maven-publish'
-
 	base {
-		archivesName = "$rootProject.archives_name-$project.name"
+		archivesName = rootProject.archives_name
 	}
 
-	repositories {
-		// Add repositories to retrieve artifacts from in here.
-		// You should only use this when depending on other mods because
-		// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-		// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-		// for more information about repositories.
+	tasks.matching { it.name in ['jar', 'sourcesJar', 'remapJar', 'remapSourcesJar'] }.configureEach {
+		archiveFileName = it.name.toLowerCase().contains('sources')
+			? "${rootProject.archives_name}-${project.version}-${project.name}-sources.jar"
+			: "${rootProject.archives_name}-${project.version}-${project.name}.jar"
 	}
 
-	dependencies {
-		minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
-		mappings loom.layered {
-			it.mappings("net.fabricmc:yarn:$rootProject.yarn_mappings:v2")
-			it.mappings("dev.architectury:yarn-mappings-patch-neoforge:$rootProject.yarn_mappings_patch_neoforge_version")
+	plugins.withId('java') {
+		java {
+			toolchain.languageVersion = JavaLanguageVersion.of(rootProject.java_version as int)
+			withSourcesJar()
 		}
-	}
-
-	java {
-		// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-		// if it is present.
-		// If you remove this line, sources will not be generated.
-		withSourcesJar()
-
-		sourceCompatibility = JavaVersion.VERSION_21
-		targetCompatibility = JavaVersion.VERSION_21
 	}
 
 	tasks.withType(JavaCompile).configureEach {
-		it.options.release = 21
+		it.options.release = rootProject.java_version as int
+	}
+}
+
+tasks.named('build') {
+	dependsOn ':fabric:build', ':forge:build', ':neoforge:build'
+}
+
+publishMods {
+	changelog = releaseChangelogProvider
+	type = releaseTypeForVersion(project.version.toString())
+	dryRun = releaseDryRunProvider
+
+	def curseforgeOptions = curseforgeOptions {
+		accessToken = curseforgeTokenProvider
+		projectId = '658722'
+		projectSlug = 'no-report-button'
+		minecraftVersions.add(rootProject.minecraft_version.toString())
+		javaVersions.add(org.gradle.api.JavaVersion.toVersion(rootProject.java_version))
+		clientRequired = true
+		serverRequired = false
 	}
 
-	// Configure Maven publishing.
-	publishing {
-		publications {
-			mavenJava(MavenPublication) {
-				artifactId = base.archivesName.get()
-				from components.java
-			}
-		}
-
-		// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-		repositories {
-			// Add repositories to publish to here.
-			// Notice: This block does NOT have the same function as the block in the top level.
-			// The repositories here will be used for publishing your artifact, not for
-			// retrieving dependencies.
-		}
+	def modrinthOptions = modrinthOptions {
+		accessToken = modrinthTokenProvider
+		projectId = '9WJeSpTH'
+		minecraftVersions.add(rootProject.minecraft_version.toString())
 	}
+
+	curseforge('curseforgeFabric') {
+		from curseforgeOptions
+		file project(':fabric')
+		displayName = loaderReleaseNameProvider('Fabric')
+		modLoaders.add('fabric')
+	}
+
+	curseforge('curseforgeForge') {
+		from curseforgeOptions
+		file project(':forge')
+		displayName = loaderReleaseNameProvider('Forge')
+		modLoaders.add('forge')
+	}
+
+	curseforge('curseforgeNeoforge') {
+		from curseforgeOptions
+		file project(':neoforge')
+		displayName = loaderReleaseNameProvider('NeoForge')
+		modLoaders.add('neoforge')
+	}
+
+	modrinth('modrinthFabric') {
+		from modrinthOptions
+		file project(':fabric')
+		displayName = loaderReleaseNameProvider('Fabric')
+		modLoaders.add('fabric')
+	}
+
+	modrinth('modrinthForge') {
+		from modrinthOptions
+		file project(':forge')
+		displayName = loaderReleaseNameProvider('Forge')
+		modLoaders.add('forge')
+	}
+
+	modrinth('modrinthNeoforge') {
+		from modrinthOptions
+		file project(':neoforge')
+		displayName = loaderReleaseNameProvider('NeoForge')
+		modLoaders.add('neoforge')
+	}
+
+	github {
+		accessToken = githubTokenProvider
+		repository = 'Lucaslah/No-Report-Button'
+		commitish = gitReleaseCommitishProvider
+		tagName = releaseTagProvider
+		displayName = releaseNameProvider
+		allowEmptyFiles = true
+		additionalFile project(':fabric')
+		additionalFile project(':forge')
+		additionalFile project(':neoforge')
+	}
+}
+
+tasks.register('releaseMod') {
+	group = 'publishing'
+	description = 'Publishes separate Fabric, Forge, and NeoForge releases to CurseForge and Modrinth, and uploads all three jars to one GitHub release.'
+	dependsOn tasks.named('publishMods')
 }

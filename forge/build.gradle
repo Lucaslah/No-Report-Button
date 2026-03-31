@@ -1,55 +1,77 @@
 plugins {
-    id 'com.github.johnrengelman.shadow'
+    id 'java'
+    id 'net.minecraftforge.gradle' version "${forge_gradle_version}"
 }
 
-architectury {
-    platformSetupLoomIde()
-    forge()
-}
-
-loom {
-    forge {
-        mixinConfig "noreportbutton.mixins.json"
+sourceSets {
+    main {
+        java.srcDir file('../common/src/main/java')
+        resources.srcDir file('../common/src/main/resources')
     }
 }
 
-configurations {
-    common {
-        canBeResolved = true
-        canBeConsumed = false
-    }
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
-    developmentForge.extendsFrom common
+minecraft {
+    runs {
+        configureEach {
+            workingDir = layout.projectDirectory.dir('run')
+            systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
+        }
 
-    // Files in this configuration will be bundled into your mod using the Shadow plugin.
-    // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
-    shadowBundle {
-        canBeResolved = true
-        canBeConsumed = false
+        register('client')
+
+        register('server') {
+            args '--nogui'
+        }
     }
+}
+
+repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+    mavenCentral()
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:${rootProject.properties["forge_version"]}"
-
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowBundle(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+    implementation minecraft.dependency("net.minecraftforge:forge:${forge_version}")
 }
 
 processResources {
-    inputs.property "version", project.version
+    def sharedIcon = file('../common/src/main/resources/assets/noreportbutton/icon.png')
+
+    inputs.properties([
+            version          : project.version,
+            forge_version    : forge_version,
+            minecraft_version: minecraft_version,
+            mod_description  : mod_description,
+            mod_name         : mod_name,
+            mod_license      : mod_license,
+            mod_authors      : mod_authors,
+            mod_id           : mod_id,
+            shared_icon      : sharedIcon.path
+    ])
+
+    from(sharedIcon) {
+        into ''
+        rename { 'icon.png' }
+    }
 
     filesMatching("META-INF/mods.toml") {
-        expand "version": project.version
+        expand(
+                version: project.version,
+                forge_version: forge_version,
+                minecraft_version: minecraft_version,
+                mod_description: mod_description,
+                mod_name: mod_name,
+                mod_license: mod_license,
+                mod_authors: mod_authors,
+                mod_id: mod_id
+        )
     }
 }
 
-shadowJar {
-    configurations = [project.configurations.shadowBundle]
-    archiveClassifier = 'dev-shadow'
-}
-
-remapJar {
-    inputFile.set shadowJar.archiveFile
+jar {
+    manifest {
+        attributes 'Implementation-Version': project.version
+    }
 }
