@@ -9,7 +9,13 @@ allprojects {
 
 subprojects {
 	base {
-		archivesName = "$rootProject.archives_name-$project.name"
+		archivesName = rootProject.archives_name
+	}
+
+	tasks.matching { it.name in ['jar', 'sourcesJar', 'remapJar', 'remapSourcesJar'] }.configureEach {
+		archiveFileName = it.name.toLowerCase().contains('sources')
+			? "${rootProject.archives_name}-${project.version}-${project.name}-sources.jar"
+			: "${rootProject.archives_name}-${project.version}-${project.name}.jar"
 	}
 
 	plugins.withId('java') {

@@ -27,6 +27,3 @@ mandatory = true
 versionRange = "[26.1,)"
 ordering = "NONE"
 side = "CLIENT"
-
-[[features.${mod_id}]]
-javaVersion = "[25,)"

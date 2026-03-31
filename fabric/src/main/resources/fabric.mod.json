@@ -4,7 +4,7 @@
   "version": "${version}",
 
   "name": "No Report Button",
-  "description": "Removes the chat report button from the multiplayer menu screen",
+  "description": "Removes the chat report button from the game menu screen",
   "authors": [
     "Lucaslah"
   ],

@@ -3,7 +3,7 @@
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Lucaslah/No-Report-Button/total?logo=github)
 
 # No Report Button
-Removes the chat report button from the pause menu.
+Removes the chat report button from the game menu screen.
 
 Supports Fabric, Forge, and NeoForge.\
 Should be compatible with any mods, but if you do find a mod that is not please open an issue.

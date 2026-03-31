@@ -37,16 +37,24 @@ dependencies {
 }
 
 processResources {
+    def sharedIcon = file('../common/src/main/resources/assets/noreportbutton/icon.png')
+
     inputs.properties([
-            version: project.version,
-            forge_version: forge_version,
+            version          : project.version,
+            forge_version    : forge_version,
             minecraft_version: minecraft_version,
-            mod_description: mod_description,
-            mod_name: mod_name,
-            mod_license: mod_license,
-            mod_authors: mod_authors,
-            mod_id: mod_id
+            mod_description  : mod_description,
+            mod_name         : mod_name,
+            mod_license      : mod_license,
+            mod_authors      : mod_authors,
+            mod_id           : mod_id,
+            shared_icon      : sharedIcon.path
     ])
+
+    from(sharedIcon) {
+        into ''
+        rename { 'icon.png' }
+    }
 
     filesMatching("META-INF/mods.toml") {
         expand(
