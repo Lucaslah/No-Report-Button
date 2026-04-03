@@ -53,7 +53,7 @@ def releaseTagProvider = providers.gradleProperty('releaseTag').orElse(
 )
 
 def releaseNameProvider = providers.provider {
-	"${rootProject.mod_name} ${project.version} for Minecraft ${rootProject.minecraft_version}"
+	"${project.version} for Minecraft ${rootProject.minecraft_version}"
 }
 
 def loaderReleaseNameProvider = { String loaderName ->
@@ -70,10 +70,10 @@ def previousTagProvider = providers.provider {
 
 def generatedChangelogProvider = providers.provider {
 	def previousTag = previousTagProvider.get()
-	def changelogLines = ["# ${releaseNameProvider.get()}", '']
+	def changelogLines = ['']
 
 	if (previousTag) {
-		changelogLines << "Changes since ${previousTag}:"
+		changelogLines << "# Changes since ${previousTag}:"
 		changelogLines << ''
 
 		def log = gitOutput(['git', 'log', '--no-merges', '--pretty=- %s (%h)', "${previousTag}..HEAD"], true)
@@ -201,6 +201,5 @@ publishMods {
 
 tasks.register('releaseMod') {
 	group = 'publishing'
-	description = 'Publishes separate Fabric, Forge, and NeoForge releases to CurseForge and Modrinth, and uploads all three jars to one GitHub release.'
 	dependsOn tasks.named('publishMods')
 }
