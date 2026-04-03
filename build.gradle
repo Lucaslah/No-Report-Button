@@ -53,7 +53,7 @@ def releaseTagProvider = providers.gradleProperty('releaseTag').orElse(
 )
 
 def releaseNameProvider = providers.provider {
-	"${rootProject.mod_name} ${project.version} for Minecraft ${rootProject.minecraft_version}"
+	"v${project.version} for Minecraft ${rootProject.minecraft_version}"
 }
 
 def loaderReleaseNameProvider = { String loaderName ->
@@ -69,20 +69,56 @@ def previousTagProvider = providers.provider {
 }
 
 def generatedChangelogProvider = providers.provider {
-	def previousTag = previousTagProvider.get()
-	def changelogLines = ["# ${releaseNameProvider.get()}", '']
+    def previousTag = previousTagProvider.get()
+    def changelogLines = ['']
 
-	if (previousTag) {
-		changelogLines << "Changes since ${previousTag}:"
-		changelogLines << ''
+	def repo = gitOutput(
+		['git', 'config', '--get', 'remote.origin.url'],
+		true
+	)?.trim()
 
-		def log = gitOutput(['git', 'log', '--no-merges', '--pretty=- %s (%h)', "${previousTag}..HEAD"], true)
-		changelogLines << (log ?: '- Maintenance release.')
+	if (repo) {
+		repo = repo
+			.replaceAll(/\.git$/, '')
+			.replaceAll(/^https?:\/\/github\.com\//, '')
+			.replaceAll(/^git@github\.com:/, '')
 	} else {
-		changelogLines << 'Initial automated release.'
+		repo = "Lucaslah/No-Report-Button"
 	}
 
-	changelogLines.join('\n')
+    if (previousTag) {
+        changelogLines << "## What's Changed"
+        changelogLines << ''
+
+        def log = gitOutput([
+            'git', 'log', '--no-merges', '--pretty=%s|%h', "${previousTag}..HEAD"
+        ], true)
+
+        if (log) {
+            log.eachLine { line ->
+                def (msg, hash) = line.tokenize('|')
+
+                def matcher = (msg =~ /\(#(\d+)\)/)
+                if (matcher.find()) {
+                    def prNumber = matcher.group(1)
+                    def cleanMsg = msg.replaceAll(/\s*\(#\d+\)/, '')
+                    changelogLines << "* ${cleanMsg} in https://github.com/${repo}/pull/${prNumber}"
+                } else {
+                    changelogLines << "* ${msg} (${hash})"
+                }
+            }
+        } else {
+            changelogLines << '* Maintenance release.'
+        }
+
+        changelogLines << ''
+        changelogLines << "**Full Changelog**: https://github.com/${repo}/compare/${previousTag}...${currentTag}"
+
+    } else {
+        changelogLines << 'Initial release.'
+    }
+
+    changelogLines.join('\n')
 }
 
 def releaseChangelogProvider = providers.gradleProperty('releaseChangelog').orElse(generatedChangelogProvider)
@@ -201,6 +237,5 @@ publishMods {
 
 tasks.register('releaseMod') {
 	group = 'publishing'
-	description = 'Publishes separate Fabric, Forge, and NeoForge releases to CurseForge and Modrinth, and uploads all three jars to one GitHub release.'
 	dependsOn tasks.named('publishMods')
 }

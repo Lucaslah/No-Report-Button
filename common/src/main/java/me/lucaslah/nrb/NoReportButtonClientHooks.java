@@ -25,6 +25,8 @@ public final class NoReportButtonClientHooks {
                 if (minecraft != null && minecraft.hasSingleplayerServer()) {
                     var server = minecraft.getSingleplayerServer();
                     widget.active = server != null && !server.isPublished();
+                } else {
+                    widget.active = false;
                 }
 
                 widget.setMessage(Component.translatable("menu.shareToLan"));

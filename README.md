@@ -15,7 +15,7 @@ See the table below for what version to use:
 
 | Minecraft Version | Mod Version | Mod loaders             |
 |-------------------|-------------|-------------------------|
-| 26.1              | 1.7.0       | Fabric, Forge, NeoForge |
+| 26.1              | 1.7.1       | Fabric, Forge, NeoForge |
 | 1.21-1.21.11      | 1.6.1       | Fabric, Forge, NeoForge |
 | 1.20.1-1.20.6     | 1.5.0       | Fabric, Forge           |
 | 1.19.4            | 1.4.1       | Fabric, Forge           |
