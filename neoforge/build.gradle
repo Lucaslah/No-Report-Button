@@ -14,6 +14,9 @@ neoForge {
     version = neoforge_version
 
     runs {
+        configureEach {
+        }
+
         client {
             client()
         }
@@ -68,6 +71,9 @@ processResources {
 
 jar {
     manifest {
-        attributes 'Implementation-Version': project.version
+        attributes(
+                'Implementation-Version': project.version,
+                'MixinConfigs': 'noreportbutton.mixins.json'
+        )
     }
 }

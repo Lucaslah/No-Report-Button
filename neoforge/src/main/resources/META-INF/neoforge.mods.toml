@@ -14,16 +14,19 @@ ${mod_description}
 logoFile = "icon.png"
 displayTest = "IGNORE_SERVER_VERSION"
 
+[[mixins]]
+config = "noreportbutton.mixins.json"
+
 [[dependencies.${mod_id}]]
 modId = "neoforge"
 mandatory = true
-versionRange = "[26.1,)"
+versionRange = "[${neoforge_version},)"
 ordering = "NONE"
 side = "CLIENT"
 
 [[dependencies.${mod_id}]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[26.1,)"
+versionRange = "[26.2,)"
 ordering = "NONE"
 side = "CLIENT"
