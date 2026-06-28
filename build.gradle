@@ -107,13 +107,10 @@ def generatedChangelogProvider = providers.provider {
                     changelogLines << "* ${msg} (${hash})"
                 }
             }
-        } else {
-            changelogLines << '* Maintenance release.'
         }
 
         changelogLines << ''
-        changelogLines << "**Full Changelog**: https://github.com/${repo}/compare/${previousTag}...${currentTag}"
-
+		changelogLines << "**Full Changelog**: https://github.com/${repo}/compare/${previousTag}...${releaseTagProvider.get()}"
     } else {
         changelogLines << 'Initial release.'
     }
