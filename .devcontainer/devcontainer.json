@@ -1,0 +1,21 @@
+{
+	"name": "Java",
+	"image": "mcr.microsoft.com/devcontainers/java:3-25-trixie",
+
+	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "none",
+			"installMaven": "false",
+			"installGradle": "true"
+		},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"github.vscode-github-actions",
+				"GitHub.vscode-pull-request-github"
+			]
+		}
+	}
+}
