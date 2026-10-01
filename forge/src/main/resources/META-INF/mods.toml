@@ -18,13 +18,13 @@ features = {java_version = "[25,)"}
 [[dependencies.${mod_id}]]
 modId = "forge"
 mandatory = true
-versionRange = "[65,)"
+versionRange = "[66,)"
 ordering = "NONE"
 side = "CLIENT"
 
 [[dependencies.${mod_id}]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[26.2,)"
+versionRange = "[26.3,)"
 ordering = "NONE"
 side = "CLIENT"
